@@ -402,19 +402,6 @@ class MaterialRequest(BuyingController):
 
 		dn_obj = frappe.db.sql(dn_query, (self.custom_scan_cn_barcode, self.company, self.custom_location), as_dict=True)
 
-		# dn = frappe.get_doc(
-		# 		{
-		# 			"doctype": "Delivery Note", 
-		# 			"custom_cn": self.custom_scan_cn_barcode,
-		# 			"custom_against_mr": ["is","not set"], 
-		# 			"custom_dn_selected": 0, 
-		# 			"workflow_state": "To Return",
-		# 			"is_return": 1, 
-		# 			"company": self.company,
-		# 			"custom_location" : self.custom_location
-		# 		}
-		# 	)
-
 		if not dn_obj:
 			frappe.throw(_(f"Current CN: {self.custom_scan_cn_barcode} does not meet the criteria. Please verify workflow_state, is_return and custom_location."))
 		else:

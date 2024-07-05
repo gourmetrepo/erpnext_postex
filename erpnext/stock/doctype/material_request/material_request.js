@@ -102,7 +102,6 @@ frappe.ui.form.on('Material Request', {
 				doc:frm.doc,
 				method: 'get_item_details_by_cn_barcode',
 				callback: function(r) {
-					console.log(r);
 					frm.refresh();
 				}
 			});
