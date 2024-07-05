@@ -1,0 +1,54 @@
+{
+ "charts": [],
+ "content": "[{\"id\":\"QkIAZb57ES\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Pending To Assign\",\"col\":4}},{\"id\":\"pU1UIZ9LpX\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Assigned Pick List\",\"col\":4}},{\"id\":\"7icLhkZtyq\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Packing In Process\",\"col\":4}}]",
+ "creation": "2023-11-17 04:14:53.534183",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "assign",
+ "idx": 0,
+ "is_hidden": 0,
+ "label": "Assign Pick List",
+ "links": [],
+ "modified": "2024-04-15 22:17:10.258023",
+ "modified_by": "Administrator",
+ "module": "Stock",
+ "name": "Assign Pick List",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "OUTBOUND",
+ "public": 1,
+ "quick_lists": [
+  {
+   "document_type": "Delivery Note",
+   "label": "Pending To Assign",
+   "quick_list_filter": "[[\"Delivery Note\",\"workflow_state\",\"=\",\"To Pick\",false],[\"Delivery Note\",\"_assign\",\"is\",\"not set\",false]]"
+  },
+  {
+   "document_type": "Delivery Note",
+   "label": "Assigned Pick List",
+   "quick_list_filter": "[[\"Delivery Note\",\"workflow_state\",\"=\",\"To Pick\",false],[\"Delivery Note\",\"_assign\",\"like\",\"%picker%\",false]]"
+  },
+  {
+   "document_type": "Delivery Note",
+   "label": "Packing In Process",
+   "quick_list_filter": "[[\"Delivery Note\",\"workflow_state\",\"=\",\"To Pack\",false]]"
+  }
+ ],
+ "roles": [
+  {
+   "role": "Warehouse Manager"
+  },
+  {
+   "role": "Inbound Incharge"
+  },
+  {
+   "role": "Administrator"
+  }
+ ],
+ "sequence_id": 35.0,
+ "shortcuts": [],
+ "title": "Assign Pick List"
+}

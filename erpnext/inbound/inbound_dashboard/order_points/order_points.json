@@ -1,0 +1,37 @@
+{
+ "cards": [],
+ "charts": [
+  {
+   "chart": "Profit and Loss",
+   "width": "Half"
+  },
+  {
+   "chart": "Budget Variance",
+   "width": "Half"
+  },
+  {
+   "chart": "Claims by Type",
+   "width": "Half"
+  },
+  {
+   "chart": "Budget Variance",
+   "width": "Half"
+  },
+  {
+   "chart": "Employees by Age",
+   "width": "Half"
+  }
+ ],
+ "creation": "2023-12-06 14:36:09.442583",
+ "dashboard_name": "order points",
+ "docstatus": 0,
+ "doctype": "Dashboard",
+ "idx": 0,
+ "is_default": 0,
+ "is_standard": 1,
+ "modified": "2023-12-06 14:53:37.047847",
+ "modified_by": "Administrator",
+ "module": "Inbound",
+ "name": "order points",
+ "owner": "Administrator"
+}
