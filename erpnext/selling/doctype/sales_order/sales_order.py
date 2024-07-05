@@ -681,6 +681,7 @@ def make_gdn_return_material_request(source_name, target_doc=None):
 					split_data = json.loads(mi.split_data)
 					split_data.append({"cn":dn.custom_cn,"qty":i.total_quantity,"a_qty":i.total_quantity,"r_qty":0,"s_qty":0,"parent":dn.name})
 					mi.split_data = json.dumps(split_data)
+					mi.split_wise = 1
 		else:
 			target_d = frappe.new_doc("Material Request Item", target_doc, "items")
 			target_d.item_code = i.sku
@@ -694,6 +695,7 @@ def make_gdn_return_material_request(source_name, target_doc=None):
 			target_d.from_warehouse = frappe.db.get_value('Item Default',{"parent":i.sku},'default_warehouse')
 			split_data = [{"cn":dn.custom_cn,"qty":i.total_quantity,"a_qty":i.total_quantity,"r_qty":0,"s_qty":0,"parent":dn.name}]
 			target_d.split_data = json.dumps(split_data)
+			target_d.split_wise = 1
 			target_doc.append("items", target_d)
 		nc = frappe.new_doc("MR DN Item", target_doc, "dn_mr_item")
 		nc.against = dn.name
