@@ -386,6 +386,72 @@ class MaterialRequest(BuyingController):
 			doc.set_status()
 			doc.db_set("status", doc.status)
 
+	@frappe.whitelist()
+	def get_item_details_by_cn_barcode(self):
+		dn_query = """
+			SELECT * FROM `tabDelivery Note`
+			WHERE
+				custom_cn = %s AND
+				custom_against_mr IS NULL AND
+				custom_dn_selected = 0 AND
+				workflow_state = 'To Return' AND
+				is_return = 1 AND
+				company = %s AND
+				custom_location = %s
+		"""
+
+		dn_obj = frappe.db.sql(dn_query, (self.custom_scan_cn_barcode, self.company, self.custom_location), as_dict=True)
+
+		# dn = frappe.get_doc(
+		# 		{
+		# 			"doctype": "Delivery Note", 
+		# 			"custom_cn": self.custom_scan_cn_barcode,
+		# 			"custom_against_mr": ["is","not set"], 
+		# 			"custom_dn_selected": 0, 
+		# 			"workflow_state": "To Return",
+		# 			"is_return": 1, 
+		# 			"company": self.company,
+		# 			"custom_location" : self.custom_location
+		# 		}
+		# 	)
+
+		if not dn_obj:
+			frappe.throw(_(f"Current CN: {self.custom_scan_cn_barcode} does not meet the criteria. Please verify workflow_state, is_return and custom_location."))
+		else:
+			dn_obj = dn_obj[0]
+
+		dn = frappe.get_doc('Delivery Note', dn_obj.name)
+		
+		i_c = []
+		for mi in self.items:
+			i_c.append(mi.item_code)
+
+		for i in dn.delivery_note_item:
+			if i.sku in i_c:
+				for mi in self.items:
+					if mi.item_code == i.sku:
+						mi.required_quantity += i.total_quantity
+						mi.qty += i.total_quantity
+						split_data = json.loads(mi.split_data)
+						split_data.append({"cn":dn.custom_cn,"qty":i.total_quantity,"a_qty":i.total_quantity,"r_qty":0,"s_qty":0,"parent":dn.name})
+						mi.split_data = json.dumps(split_data)
+						mi.split_wise = 1
+			else:
+				target_d = frappe.new_doc("Material Request Item", self, "items")
+				target_d.item_code = i.sku
+				target_d.item_name = i.product_name
+				target_d.required_quantity = i.total_quantity
+				target_d.qty = i.total_quantity
+				target_d.description = i.product_name
+				target_d.uom = 'Nos'
+				target_d.conversion_factor = 1
+				target_d.schedule_date = self.transaction_date
+				target_d.from_warehouse = frappe.db.get_value('Item Default',{"parent":i.sku},'default_warehouse')
+				split_data = [{"cn":dn.custom_cn,"qty":i.total_quantity,"a_qty":i.total_quantity,"r_qty":0,"s_qty":0,"parent":dn.name}]
+				target_d.split_data = json.dumps(split_data)
+				target_d.split_wise = 1
+				self.append("items", target_d)
+
 
 def update_completed_and_requested_qty(stock_entry, method):
 	if stock_entry.doctype == "Stock Entry":

@@ -15,6 +15,12 @@ frappe.ui.form.on('Material Request', {
 		frm.clear_table('dn_mr_items');
 		frm.clear_table('mr_se_item');
 		changeButtons(frm)
+		if (frm.doc.type == 'Put Away Return'){
+			frm.set_df_property('custom_scan_cn_barcode', 'hidden', false);
+		}
+		else {
+			frm.set_df_property('custom_scan_cn_barcode', 'hidden', true);
+		}
 	},
 	custom_scan_barcode:function(frm){
 		if (frm.doc.custom_barcode != ''){
@@ -89,6 +95,18 @@ frappe.ui.form.on('Material Request', {
 		}
 
 
+	},
+	custom_scan_cn_barcode:function(frm){
+		if (frm.doc.custom_scan_cn_barcode != ''){
+			return frappe.call({
+				doc:frm.doc,
+				method: 'get_item_details_by_cn_barcode',
+				callback: function(r) {
+					console.log(r);
+					frm.refresh();
+				}
+			});
+		}
 	},
 	setup: function(frm) {
 		// fetchRoleProfile();
