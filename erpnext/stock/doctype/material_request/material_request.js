@@ -101,10 +101,15 @@ frappe.ui.form.on('Material Request', {
 			return frappe.call({
 				doc:frm.doc,
 				method: 'get_item_details_by_cn_barcode',
+				freeze: true,
+				freeze_message: 'Retrieving. Please Wait',
 				callback: function(r) {
 					frm.refresh();
+					frm.set_value('custom_scan_cn_barcode', '');
 				}
-			});
+			}).fail(function() {
+				frm.set_value('custom_scan_cn_barcode', '');
+			});;
 		}
 	},
 	setup: function(frm) {
