@@ -438,6 +438,12 @@ class MaterialRequest(BuyingController):
 				target_d.split_data = json.dumps(split_data)
 				target_d.split_wise = 1
 				self.append("items", target_d)
+			nc = frappe.new_doc("MR DN Item", self, "dn_mr_item")
+			nc.against = dn.name
+			nc.sku = i.sku
+			nc.product_name = i.product_name
+			nc.qauntity = i.total_quantity
+			self.append("dn_mr_item", nc)
 
 
 def update_completed_and_requested_qty(stock_entry, method):
