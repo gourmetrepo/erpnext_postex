@@ -188,10 +188,11 @@ class MaterialRequest(BuyingController):
 							frappe.db.sql(f"""UPDATE `tabDelivery Note Return Item` set accepted_quantity = '{d.get('a_qty')}', rejected_quantity = '{d.get('r_qty')}', short_quantity = '{d.get('s_qty')}', a_warehouse = '{i.from_warehouse}', r_warehouse = '{self.set_warehouse}' WHERE sku = '{i.item_code}' and parent = '{d.get('parent')}'""",auto_commit=True)
 				for d in self.dn_mr_item:
 					dn = frappe.get_doc('Delivery Note',d.against)
-					# frappe.db.sql(f"update `tabDelivery Note` set workflow_state = 'To QC' WHERE name = '{d.against}'",auto_commit=True)
-					dn.workflow_state = 'To QC'
-					dn.save()
-					dn.submit()
+					if (dn.docstatus == 0):
+						# frappe.db.sql(f"update `tabDelivery Note` set workflow_state = 'To QC' WHERE name = '{d.against}'",auto_commit=True)					
+						dn.workflow_state = 'To QC'
+						dn.save()
+						dn.submit()
 		except Exception as e:
 			frappe.db.rollback()
 			frappe.throw(f"{str(e)}")
