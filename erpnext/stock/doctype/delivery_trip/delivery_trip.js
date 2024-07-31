@@ -145,6 +145,7 @@ frappe.ui.form.on('Delivery Trip', {
 					},
 					get_query_filters: {
 						docstatus: 1,
+						is_return: 0,
 						company: frm.doc.company,
 						sales_partner:frm.doc.delivery_partner,
 						name: ["not in",d_stops]
