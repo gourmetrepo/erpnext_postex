@@ -11,9 +11,17 @@ frappe.ui.form.on('Material Request', {
 	},
 	type: function(frm){
 		updateChildTable(frm);
+		frm.set_value('set_warehouse', null);
+		frm.set_value('custom_location', null);
+        frm.set_value('custom_default_target_bin', null);
+		frm.doc.picking_bin = null;
+		frm.refresh_field('picking_bin');
 		frm.clear_table('items');
-		frm.clear_table('dn_mr_items');
+		frm.refresh_field('items');
+		frm.clear_table('dn_mr_item');
+		frm.refresh_field('dn_mr_item');
 		frm.clear_table('mr_se_item');
+		frm.refresh_field('mr_se_item');
 		changeButtons(frm)
 		if (frm.doc.type == 'Put Away Return'){
 			frm.set_df_property('custom_scan_cn_barcode', 'hidden', false);
@@ -112,6 +120,18 @@ frappe.ui.form.on('Material Request', {
 			});;
 		}
 	},
+
+	custom_location: function(frm){
+		frm.set_value('set_warehouse', null);
+        frm.set_value('custom_default_target_bin', null);
+		frm.clear_table('items');
+		frm.refresh_field('items');
+		frm.clear_table('dn_mr_item');
+		frm.refresh_field('dn_mr_item');
+		frm.clear_table('mr_se_item');
+		frm.refresh_field('mr_se_item');
+	},
+
 	setup: function(frm) {
 		// fetchRoleProfile();
 		frm.custom_make_buttons = {
