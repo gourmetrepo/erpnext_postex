@@ -997,6 +997,7 @@ function updateChildTable(frm){
 		frm.set_df_property('picking_bin','reqd',0);
 		frm.set_df_property('picking_bin','hidden',1);
 		frm.set_df_property('set_warehouse','label','Rejected Location');
+		frm.set_df_property('set_warehouse','reqd',1);
 		frm.set_df_property('set_warehouse','hidden',0);
 		frm.get_field('items').grid.update_docfield_property('required_quantity','label','Total Quantity');
 		frm.get_field('items').grid.update_docfield_property('qty','label','Accepted Quantity');
