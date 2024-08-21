@@ -124,6 +124,8 @@ frappe.ui.form.on('Material Request', {
 	custom_location: function(frm){
 		frm.set_value('set_warehouse', null);
         frm.set_value('custom_default_target_bin', null);
+		frm.doc.picking_bin = null;
+		frm.refresh_field('picking_bin');
 		frm.clear_table('items');
 		frm.refresh_field('items');
 		frm.clear_table('dn_mr_item');
