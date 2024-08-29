@@ -669,6 +669,7 @@ def make_gdn_return_material_request(source_name, target_doc=None):
 	for md in target_doc.dn_mr_item:
 		d_c.append(md.against)
 	if dn.name in d_c:
+		frappe.throw(_(f"The CN has been scanned already"))
 		return target_doc
 	for mi in target_doc.items:
 		i_c.append(mi.item_code)

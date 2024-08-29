@@ -389,6 +389,22 @@ class MaterialRequest(BuyingController):
 
 	@frappe.whitelist()
 	def get_item_details_by_cn_barcode(self):
+		# validate cn scan duplication
+		dn_against_cn = set()
+		for dn in self.dn_mr_item:
+			dn_against_cn.add(dn.against)
+		
+		validate_cn_query = """
+			SELECT name 
+			FROM `tabDelivery Note`
+			WHERE custom_cn = %s
+		"""
+		validate_cn_obj = frappe.db.sql(validate_cn_query, self.custom_scan_cn_barcode, as_dict=True)
+		
+		for dn in validate_cn_obj:
+			if dn.name in dn_against_cn:
+				frappe.throw(_(f"The CN has been scanned already"))
+
 		dn_query = """
 			SELECT * FROM `tabDelivery Note`
 			WHERE
