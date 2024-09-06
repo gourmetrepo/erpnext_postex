@@ -197,6 +197,7 @@ class StockBalanceReport(object):
 			{
 				"item_code": entry.item_code,
 				"warehouse": entry.warehouse,
+				"warehouse_name": entry.warehouse_name,
 				"item_group": entry.item_group,
 				"company": entry.company,
 				"currency": self.company_currency,
@@ -216,7 +217,7 @@ class StockBalanceReport(object):
 		)
 
 	def get_group_by_key(self, row) -> tuple:
-		group_by_key = [row.company, row.item_code, row.warehouse]
+		group_by_key = [row.company, row.item_code, row.warehouse,row.warehouse_name]
 
 		for fieldname in self.inventory_dimensions:
 			if self.filters.get(fieldname):
@@ -251,14 +252,17 @@ class StockBalanceReport(object):
 	def prepare_stock_ledger_entries(self):
 		sle = frappe.qb.DocType("Stock Ledger Entry")
 		item_table = frappe.qb.DocType("Item")
+		warehouse = frappe.qb.DocType('Warehouse')
 
 		query = (
 			frappe.qb.from_(sle)
 			.inner_join(item_table)
 			.on(sle.item_code == item_table.name)
+			.inner_join(warehouse).on(sle.warehouse == warehouse.name)
 			.select(
 				sle.item_code,
 				sle.warehouse,
+				warehouse.warehouse_name,
 				sle.posting_date,
 				sle.actual_qty,
 				sle.valuation_rate,
@@ -358,7 +362,7 @@ class StockBalanceReport(object):
 			},
 			{
 				"label": _("Warehouse"),
-				"fieldname": "warehouse",
+				"fieldname": "warehouse_name",
 				"fieldtype": "Link",
 				"options": "Warehouse",
 				"width": 100,
@@ -575,6 +579,7 @@ def filter_items_with_no_transactions(
 			if key in [
 				"item_code",
 				"warehouse",
+				"warehouse_name",
 				"item_name",
 				"item_group",
 				"project",

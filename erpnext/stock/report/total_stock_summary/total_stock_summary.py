@@ -35,11 +35,13 @@ def get_columns(filters):
 def get_total_stock(filters):
 	bin = frappe.qb.DocType("Stock Ledger Entry")
 	item = frappe.qb.DocType("Item")
+	warehouse = frappe.qb.DocType("Warehouse")
 
 	query = (
 		frappe.qb.from_(bin)
 		.inner_join(item)
 		.on(bin.item_code == item.item_code)
+		.inner_join(warehouse).on(bin.warehouse == warehouse.name)
 		.where(bin.actual_qty != 0)
 	)
 
@@ -47,7 +49,7 @@ def get_total_stock(filters):
 		if filters.get("company"):
 			query = query.where(bin.company == filters.get("company"))
 
-		query = query.select(bin.warehouse).groupby(bin.warehouse)
+		query = query.select(warehouse.warehouse_name).groupby(bin.warehouse)
 	else:
 		query = query.select(bin.company).groupby(bin.company)
 
