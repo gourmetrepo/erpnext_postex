@@ -49,7 +49,7 @@ def get_warehouses(report_filters: StockBalanceFilter):
 
 	return frappe.get_all(
 		"Warehouse",
-		fields=["name", "parent_warehouse", "is_group", "disabled"],
+		fields=["warehouse_name AS name", "parent_warehouse", "is_group", "disabled"],
 		filters=filters,
 		order_by="lft",
 	)
