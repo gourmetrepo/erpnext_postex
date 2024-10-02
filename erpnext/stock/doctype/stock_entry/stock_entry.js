@@ -1291,7 +1291,7 @@ function setup_warehouse(frm){
 	if(frm.doc.stock_entry_type == 'Stock Transfer'){
 		frm.fields_dict['items'].grid.get_field("s_warehouse").get_query = function(doc, cdt, cdn) {
 			return {
-				filters: {'is_group':0,'company':frm.doc.company,"parent_warehouse":['descendants of',doc.custom_main_location]}
+				filters: {'custom_is_pickable_bin': 1,'is_group':0,'company':frm.doc.company,"parent_warehouse":['descendants of',doc.custom_main_location]}
 			}
 		}
 		frm.fields_dict['items'].grid.get_field("t_warehouse").get_query = function(doc, cdt, cdn) {
