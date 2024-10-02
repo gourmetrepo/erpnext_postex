@@ -414,6 +414,18 @@ frappe.ui.form.on('Stock Entry', {
 		frm.remove_custom_button('Bill of Materials', "Get Items From");
 		frm.events.show_bom_custom_button(frm);
 		frm.trigger('add_to_transit');
+		frm.set_value('custom_main_location', null);
+        if (frm.fields_dict['items'] && frm.fields_dict['items'].grid) {
+            frm.fields_dict['items'].grid.grid_rows.forEach(function(row) {
+                var child_doc = row.doc;
+                $.each(child_doc, function(key, value) {
+                    if (!["doctype", "name", "parent"].includes(key)) {
+                        frappe.model.set_value(child_doc.doctype, child_doc.name, key, null);
+                    }
+                });
+            });
+            frm.refresh_field('items');
+        }
 		setup_warehouse(frm);
 	},
 
