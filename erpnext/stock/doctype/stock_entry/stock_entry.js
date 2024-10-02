@@ -1267,7 +1267,7 @@ function setup_warehouse(frm){
 	if(frm.doc.stock_entry_type == 'Damage Return'){
 		frm.fields_dict['items'].grid.get_field("s_warehouse").get_query = function(doc, cdt, cdn) {
 			return {
-				filters: {'warehouse_type':'Rejection','is_group':0,'company':frm.doc.company,"parent_warehouse":['descendants of',doc.custom_main_location]}
+				filters: {'warehouse_type':'Rejection','custom_is_damaged_bin':1,'is_group':0,'company':frm.doc.company,"parent_warehouse":['descendants of',doc.custom_main_location]}
 			}
 		}
 		frm.fields_dict['items'].grid.get_field("t_warehouse").get_query = function(doc, cdt, cdn) {
