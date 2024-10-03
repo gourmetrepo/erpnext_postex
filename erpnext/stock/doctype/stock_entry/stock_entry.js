@@ -418,11 +418,9 @@ frappe.ui.form.on('Stock Entry', {
         if (frm.fields_dict['items'] && frm.fields_dict['items'].grid) {
             frm.fields_dict['items'].grid.grid_rows.forEach(function(row) {
                 var child_doc = row.doc;
-                $.each(child_doc, function(key, value) {
-                    if (!["doctype", "name", "parent"].includes(key)) {
-                        frappe.model.set_value(child_doc.doctype, child_doc.name, key, null);
-                    }
-                });
+				["s_warehouse", "t_warehouse", "item_code", "item_name", "description", "item_group", "qty", "transfer_qty", "uom", "stock_uom", "expense_account", "cost_center", "actual_qty", "transferred_qty"].forEach((key) => {
+					frappe.model.set_value(child_doc.doctype, child_doc.name, key, null);
+				});
             });
             frm.refresh_field('items');
         }
