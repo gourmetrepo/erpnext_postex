@@ -415,16 +415,15 @@ frappe.ui.form.on('Stock Entry', {
 		frm.events.show_bom_custom_button(frm);
 		frm.trigger('add_to_transit');
 		frm.set_value('custom_main_location', null);
-        if (frm.fields_dict['items'] && frm.fields_dict['items'].grid) {
-            frm.fields_dict['items'].grid.grid_rows.forEach(function(row) {
-                var child_doc = row.doc;
-				["s_warehouse", "t_warehouse", "item_code", "item_name", "description", "item_group", "qty", "transfer_qty", "uom", "stock_uom", "expense_account", "cost_center", "actual_qty", "transferred_qty"].forEach((key) => {
-					frappe.model.set_value(child_doc.doctype, child_doc.name, key, null);
-				});
-            });
-            frm.refresh_field('items');
-        }
+		frm.fields_dict['items'].grid.grid_rows.forEach(function(row) {
+			var child_doc = row.doc;
+			["s_warehouse", "t_warehouse", "item_code", "item_name", "description", "item_group", "qty", "transfer_qty", "uom", "stock_uom", "expense_account", "cost_center", "actual_qty", "transferred_qty"].forEach((key) => {
+				frappe.model.set_value(child_doc.doctype, child_doc.name, key, null);
+			});
+		});
+		frm.refresh_field('items');
 		setup_warehouse(frm);
+		frm.get_field('items').grid.reset_grid();
 	},
 
 	purpose: function(frm) {
