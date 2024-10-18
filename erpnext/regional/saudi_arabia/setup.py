@@ -12,7 +12,7 @@ from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
 def setup(company=None, patch=True):
 	add_print_formats()
 	add_permissions()
-	make_custom_fields()
+	# make_custom_fields()
 
 
 def add_print_formats():
