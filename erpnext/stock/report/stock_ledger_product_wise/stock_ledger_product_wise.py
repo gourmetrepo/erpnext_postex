@@ -2,6 +2,7 @@
 # For license information, please see license.txt
 
 import frappe
+from frappe import _
 
 
 def execute(filters=None):
@@ -28,9 +29,9 @@ def execute(filters=None):
 
 def get_columns(filters):
 	columns = [
-		{"label": "SKU", "fieldname": "custom_sku", "fieldtype": "data", "width": 380,"align":"left"},
-		{"label": "Product", "fieldname": "item_name", "fieldtype": "data", "width": 380},
-		{"label": "Warehouse", "fieldname": "warehouse", "fieldtype": "data", "width": 300},
-		{"label": "Quantity", "fieldname": "qty", "fieldtype": "int", "width": 150},
+		{"label": _("SKU"), "fieldname": "custom_sku", "fieldtype": "data", "width": 380,"align":"left"},
+		{"label": _("Product"), "fieldname": "item_name", "fieldtype": "data", "width": 380},
+		{"label": _("Warehouse"), "fieldname": "warehouse", "fieldtype": "data", "width": 300},
+		{"label": _("Quantity"), "fieldname": "qty", "fieldtype": "int", "width": 150},
 	]
 	return columns
