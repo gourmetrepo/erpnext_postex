@@ -10014,3 +10014,32 @@ Create - Return Putaway,إنشاء - إعادة الوضع
 Create - Pick List,إنشاء - اختيار القائمة
 No Data...,...لا توجد بيانات,
 Location Wise Stock,الموقع الحكيم الأسهم
+Create Load Sheet Screen,شاشة إنشاء ورقة التحميل
+Type of Chart,نوع الرسم البياني
+Preview Chart,معاينة الرسم البياني
+Fetch Orders,استيراد الطلبات
+#CN,#رقم التتبع
+Packer List Screen,شاشة قائمة التعبئة
+Consignee City,مدينة المستلم
+Consignee Name,اسم المستلم
+Packing Date,تاريخ التعبئة
+Packing Time,وقت التعبئة
+Store Order Ref ID,رقم طلب المتجر
+Print Airway Bill,طباعة بوليصة الشحن
+Mark Return,وضع علامة للمرتجعات
+Pack Quantity,كمية التعبئة
+Pick Quantity,كمية الالتقاط
+Stock Ledger Screen,شاشة دفتر المخزون
+Quantity,الكمية
+Warehouse,المستودع
+Product,المنتج
+SKU,كود المنتج (SKU)
+Picker List Screen,شاشة قائمة الالتقاط
+Consignee City,مدينة المستلم
+Store Order Ref ID,رقم طلب المتجر
+Print Airway Bill,طباعة بوليصة الشحن
+Mark Return,وضع علامة للإرجاع
+Picking Date,تاريخ الالتقاط
+Picking Time,وقت الالتقاط
+Pack Quantity,كمية التعبئة
+Pick Quantity,كمية الالتقاط
