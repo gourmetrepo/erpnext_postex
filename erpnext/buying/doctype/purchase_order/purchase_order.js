@@ -53,6 +53,31 @@ frappe.ui.form.on("Purchase Order", {
 		erpnext.accounts.dimensions.update_dimension(frm, frm.doctype);
 	},
 
+	scan_barcode: function(frm) {
+		const merchant_id = frm.doc.company;
+		const location = frm.doc.set_warehouse;
+		const sku = frm.doc.scan_barcode
+		const merchant_wise_barcode = `${merchant_id}___${location}___${sku}`;
+		
+		if (sku) {
+			if (!location) {
+				frappe.msgprint({
+					title: __("Notification"),
+					indicator: "red",
+					message: __("Target Location is required before scanning barcode")
+				});
+				frm.set_value("scan_barcode", "");
+				return;
+			}
+
+			frm.fields_dict.scan_barcode.value = merchant_wise_barcode;
+			frm.fields_dict.scan_barcode.last_value = merchant_wise_barcode;
+
+			const barcode_scanner = new erpnext.utils.BarcodeScanner({frm});
+			barcode_scanner.process_scan();
+		}
+	},
+
 	refresh: function(frm) {
 		frm.doc.items.forEach(child => {
 			if (child.item_code){

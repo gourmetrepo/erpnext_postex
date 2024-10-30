@@ -9,6 +9,7 @@ frappe.ui.form.on('Material Request', {
 	picking_bin: function(frm){
 		frappe.db.set_value('Picking Bin',frm.doc.picking_bin,'occupied',1);
 	},
+
 	type: function(frm){
 		updateChildTable(frm);
 		frm.set_value('set_warehouse', null);
@@ -30,80 +31,98 @@ frappe.ui.form.on('Material Request', {
 			frm.set_df_property('custom_scan_cn_barcode', 'hidden', true);
 		}
 	},
+
 	custom_scan_barcode:function(frm){
+		var form
 		if (frm.doc.custom_barcode != ''){
-			frappe.call({
-				method: "postex.api.dn.get_item_by_barcode",
-				type: "GET",
-				args: {
-					"barcode":frm.doc.custom_scan_barcode
-				},
-				callback: function (r) {
-					var item_code = r.message;
-					frm.doc.items.forEach(function(d){
-						if (d.item_code == item_code){
-							if(frm.doc.type == 'Put Away Return'){
-								// if(frm.doc.__islocal != undefined){
-									if(d.required_quantity > (d.qty - 1)){
-										frm.doc.custom_scan_barcode = '';
-										frm.refresh_field('custom_scan_barcode');
-										frappe.throw("You cannot add item more then total quantity");
-									}
-									d.qty -= 1;
-								// }else{
-								// 	if(d.qty > (d.pack_quantity - 1)){
-								// 		frm.doc.custom_scan_barcode = '';
-								// 		frm.refresh_field('custom_scan_barcode');
-								// 		frappe.throw("You cannot add item more then accepted quantity");
-								// 	}
-								// 	d.pack_quantity -= 1;
-								// }
-							}else if(frm.doc.type == 'Pick & Pack'){
-								if(frm.doc.__islocal == undefined || frm.doc.__islocal == 0){
-									if(d.qty < (d.pack_quantity + 1)){
-										frm.doc.custom_scan_barcode = '';
-										frm.refresh_field('custom_scan_barcode');
-										frappe.throw("You cannot add item more then pick quantity");
-									}
-									d.pack_quantity += 1;
-								}else{
-									if(d.required_quantity < (d.qty + 1)){
-										frm.doc.custom_scan_barcode = '';
-										frm.refresh_field('custom_scan_barcode');
-										frappe.throw("You cannot add item more then required quantity");
-									}
-									d.qty += 1;
-								}
-	
-							}else if(frm.doc.type == 'Put Away GRN'){
-								if(frm.doc.__islocal == undefined || frm.doc.__islocal == 0){								
-									if(d.qty < (d.pack_quantity + 1)){
-										frm.doc.custom_scan_barcode = '';
-										frm.refresh_field('custom_scan_barcode');
-										frappe.throw("You cannot add item more then quantity");
-									}
-									d.pack_quantity += 1;
-								// }else{
-								// 	if(d.required_quantity < (d.qty + 1)){
-								// 		frm.doc.custom_scan_barcode = '';
-								// 		frm.refresh_field('custom_scan_barcode');
-								// 		frappe.throw("You cannot add item more then required quantity");
-								// 	}
-								// 	d.qty += 1;
-								}
-	
-							}
-							frm.refresh_field('items');
-							frm.doc.custom_scan_barcode = '';
-							frm.refresh_field('custom_scan_barcode');
-						}
+			const merchant_id = frm.doc.company;
+			const location = frm.doc.custom_location;
+			const sku = frm.doc.custom_scan_barcode
+			const merchant_wise_barcode = `${merchant_id}___${location}___${sku}`;
+
+			if (sku) {
+				if (!location) {
+					frappe.msgprint({
+						title: __("Notification"),
+						indicator: "red",
+						message: __("Location is required before scanning barcode")
 					});
-				},
-			});		
+					frm.set_value("scan_barcode", "");
+					return;
+				}
+
+				frappe.call({
+					method: "postex.api.dn.get_item_by_barcode",
+					type: "GET",
+					args: {
+						"barcode": merchant_wise_barcode
+					},
+					callback: (r) => {
+						var item_code = r.message;
+						frm.doc.items.forEach(function(d){
+							if (d.item_code == item_code){
+								if(frm.doc.type == 'Put Away Return'){
+									// if(frm.doc.__islocal != undefined){
+										if(d.required_quantity > (d.qty - 1)){
+											frm.doc.custom_scan_barcode = '';
+											frm.refresh_field('custom_scan_barcode');
+											frappe.throw("You cannot add item more then total quantity");
+										}
+										d.qty -= 1;
+									// }else{
+									// 	if(d.qty > (d.pack_quantity - 1)){
+									// 		frm.doc.custom_scan_barcode = '';
+									// 		frm.refresh_field('custom_scan_barcode');
+									// 		frappe.throw("You cannot add item more then accepted quantity");
+									// 	}
+									// 	d.pack_quantity -= 1;
+									// }
+								}else if(frm.doc.type == 'Pick & Pack'){
+									if(frm.doc.__islocal == undefined || frm.doc.__islocal == 0){
+										if(d.qty < (d.pack_quantity + 1)){
+											frm.doc.custom_scan_barcode = '';
+											frm.refresh_field('custom_scan_barcode');
+											frappe.throw("You cannot add item more then pick quantity");
+										}
+										d.pack_quantity += 1;
+									}else{
+										if(d.required_quantity < (d.qty + 1)){
+											frm.doc.custom_scan_barcode = '';
+											frm.refresh_field('custom_scan_barcode');
+											frappe.throw("You cannot add item more then required quantity");
+										}
+										d.qty += 1;
+									}
+		
+								}else if(frm.doc.type == 'Put Away GRN'){
+									if(frm.doc.__islocal == undefined || frm.doc.__islocal == 0){								
+										if(d.qty < (d.pack_quantity + 1)){
+											frm.doc.custom_scan_barcode = '';
+											frm.refresh_field('custom_scan_barcode');
+											frappe.throw("You cannot add item more then quantity");
+										}
+										d.pack_quantity += 1;
+									// }else{
+									// 	if(d.required_quantity < (d.qty + 1)){
+									// 		frm.doc.custom_scan_barcode = '';
+									// 		frm.refresh_field('custom_scan_barcode');
+									// 		frappe.throw("You cannot add item more then required quantity");
+									// 	}
+									// 	d.qty += 1;
+									}
+		
+								}
+								frm.refresh_field('items');
+								frm.doc.custom_scan_barcode = '';
+								frm.refresh_field('custom_scan_barcode');
+							}
+						});
+					},
+				});		
+			}
 		}
-
-
 	},
+
 	custom_scan_cn_barcode:function(frm){
 		if (frm.doc.custom_scan_cn_barcode != ''){
 			return frappe.call({
