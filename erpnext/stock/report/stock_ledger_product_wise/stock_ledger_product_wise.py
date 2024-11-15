@@ -14,7 +14,7 @@ def execute(filters=None):
 					  JOIN `tabItem` AS i on i.item_code = sle.item_code
 					  JOIN `tabWarehouse` AS wh ON sle.warehouse = wh.name
 					  WHERE i.custom_merchant = '{merchant}' 
-					  GROUP BY i.item_code""",as_dict=True)
+					  GROUP BY i.item_code,sle.warehouse""",as_dict=True)
 	for d in data:
 		main_location=0
 		while main_location == 0:
