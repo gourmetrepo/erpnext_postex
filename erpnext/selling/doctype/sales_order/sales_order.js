@@ -150,7 +150,11 @@ frappe.ui.form.on("Sales Order", {
 			if(!d.delivery_date) d.delivery_date = frm.doc.delivery_date;
 		});
 		refresh_field("items");
-	}
+	},
+
+	custom_print_airway_bill: function(frm){
+		window.open(frm.doc.custom_airway_bill);
+	},
 });
 
 frappe.ui.form.on("Sales Order Item", {
