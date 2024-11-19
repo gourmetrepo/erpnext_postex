@@ -127,6 +127,9 @@ frappe.ui.form.on('Delivery Trip', {
 				if (frm.doc.delivery_partner == '' || frm.doc.delivery_partner == undefined){
 					frappe.throw("Please select the delivery company first");
 				}
+				if (frm.doc.custom_location == '' || frm.doc.custom_location == undefined){
+					frappe.throw("Please select the Location first");
+				}
 				let d_stops = [];
 				frm.doc.delivery_stops.forEach(item => {
 					d_stops.push(item.delivery_note);
