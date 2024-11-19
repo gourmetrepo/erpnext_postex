@@ -10,12 +10,17 @@ frappe.ui.form.on('Delivery Trip', {
 				frappe.throw('Duplicate consignment number not allowed');
 			}
 		});
+		if (!frm.doc.custom_location) {
+			frm.set_value("scan_barcode", "");
+			frappe.throw("Please select the Location before scanning barcodes");
+        }
 		if(frm.doc.delivery_partner == undefined || frm.doc.delivery_partner == ''){
 			frappe.call({
 				freeze:true,
 				method: "erpnext.stock.doctype.delivery_trip.delivery_trip.barcode_deliverycompany",
 				args: {
-					barcode: frm.doc.scan_barcode
+					barcode: frm.doc.scan_barcode,
+					location: frm.doc.custom_location
 				},
 				callback: (data) => {
 					if(data.message){
@@ -38,7 +43,8 @@ frappe.ui.form.on('Delivery Trip', {
 				method: "erpnext.stock.doctype.delivery_trip.delivery_trip.barcode",
 				args: {
 					barcode: frm.doc.scan_barcode,
-					delivery_partner : frm.doc.delivery_partner
+					delivery_partner : frm.doc.delivery_partner,
+					location: frm.doc.custom_location
 				},
 				callback: (data) => {
 					if(data.message){
@@ -128,7 +134,7 @@ frappe.ui.form.on('Delivery Trip', {
 					frappe.throw("Please select the delivery company first");
 				}
 				if (frm.doc.custom_location == '' || frm.doc.custom_location == undefined){
-					frappe.throw("Please select the Location first");
+					frappe.throw("Please select the Location before fetching orders");
 				}
 				let d_stops = [];
 				frm.doc.delivery_stops.forEach(item => {
@@ -151,7 +157,8 @@ frappe.ui.form.on('Delivery Trip', {
 						is_return: 0,
 						company: frm.doc.company,
 						sales_partner:frm.doc.delivery_partner,
-						name: ["not in",d_stops]
+						name: ["not in",d_stops],
+						custom_location: frm.doc.custom_location
 					}
 				})
 	
