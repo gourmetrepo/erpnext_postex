@@ -978,21 +978,10 @@ erpnext.stock.StockEntry = class StockEntry extends erpnext.stock.StockControlle
 
 	scan_barcode() {
 		const merchant_id = this.frm.doc.company;
-		const location = this.frm.doc.custom_main_location;
 		const sku = this.frm.doc.scan_barcode
-		const merchant_wise_barcode = `${merchant_id}___${location}___${sku}`;
+		const merchant_wise_barcode = `${merchant_id}___${sku}`;
 
 		if (sku) {
-			if (!location) {
-				frappe.msgprint({
-					title: __("Notification"),
-					indicator: "red",
-					message: __("Main Location is required before scanning barcode")
-				});
-				this.frm.set_value("scan_barcode", "");
-				return;
-			}
-
 			this.frm.fields_dict.scan_barcode.value = merchant_wise_barcode
 			this.frm.fields_dict.scan_barcode.last_value = merchant_wise_barcode
 
