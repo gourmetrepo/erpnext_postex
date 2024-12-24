@@ -153,6 +153,7 @@ frappe.ui.form.on('Delivery Trip', {
 				
 					},
 					get_query_filters: {
+						lr_no:["is","not set"],
 						docstatus: 1,
 						is_return: 0,
 						company: frm.doc.company,
