@@ -731,7 +731,9 @@ def make_delivery_trip(source_name, target_doc=None):
 		# Append unique Delivery Notes in Delivery Trip
 		delivery_notes.append(target_doc.delivery_note)
 	
-	delivery_notes = frappe.db.get_list('Delivery Stop', fields=["delivery_note"], ignore_permissions=True)
+	# Commented this line as unable to "Fetch Orders" of 80+ records in Load Sheet
+	# delivery_notes = frappe.db.get_list('Delivery Stop', fields=["delivery_note"], ignore_permissions=True)
+	delivery_notes = []
 
 	doclist = get_mapped_doc(
 		"Delivery Note",
