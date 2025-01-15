@@ -494,6 +494,7 @@
    "options": "Barcode"
   },
   {
+   "allow_bulk_edit": 1,
    "fieldname": "items",
    "fieldtype": "Table",
    "label": "Items",
@@ -1273,7 +1274,7 @@
  "idx": 105,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-12-21 07:14:48.810629",
+ "modified": "2024-06-25 13:33:18.340467",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Purchase Order",
