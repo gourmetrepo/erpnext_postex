@@ -132,6 +132,7 @@
    "fieldtype": "Data",
    "in_global_search": 1,
    "label": "Item Name",
+   "length": 256,
    "print_hide": 1,
    "read_only": 1
   },
@@ -572,7 +573,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-05-09 12:41:18.210864",
+ "modified": "2025-01-14 21:14:34.239831",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Stock Entry Detail",
