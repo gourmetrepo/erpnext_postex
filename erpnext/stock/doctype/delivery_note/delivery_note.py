@@ -1085,7 +1085,7 @@ def on_doctype_update():
 
 def make_return_stock_entries(dn):
 	doclist = frappe.new_doc('Stock Entry')
-	doclist.stock_entry_type = 'Put Away'
+	doclist.stock_entry_type = 'Stock Transfer'
 	doclist.company = dn.company
 	for i in dn.delivery_note_item:
 		if i.accepted_quantity > 0:

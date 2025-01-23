@@ -438,19 +438,21 @@ def get_driver_email(driver):
 	return {"email": email}
 
 @frappe.whitelist()
-def barcode(barcode,delivery_partner):
+def barcode(barcode,delivery_partner, location):
 	if barcode == '':
 		return
-	dn = frappe.db.get('Delivery Note',{"custom_cn":barcode,"sales_partner": delivery_partner,"custom_auto_return":0,"is_return":0,"docstatus":1},["name","custom_cn","custom_consignee_name","custom_consignee_city"])
+	dn = frappe.db.get('Delivery Note',{"custom_cn":barcode,"sales_partner": delivery_partner,"custom_auto_return":0,"is_return":0,"docstatus":1, "custom_location": location},["name","custom_cn","custom_consignee_name","custom_consignee_city"])
 	if not dn:
-		frappe.throw(f"The scanned CN# does not belong to the selected delivery company. Please verify the parcel and try again.")	
+		frappe.throw(f"The scanned CN# does not belong to the selected delivery company and location. Please verify the parcel and try again.")	
 	return dn
 
 @frappe.whitelist()
-def barcode_deliverycompany(barcode):
+def barcode_deliverycompany(barcode, location):
 	if barcode == '':
 		return
-	dn = frappe.get_doc('Delivery Note',{"custom_cn":barcode,"custom_auto_return":0,"is_return":0,"docstatus":1},["name","custom_cn","custom_consignee_name","custom_consignee_city","sales_partner"])
+	dn = frappe.get_doc('Delivery Note',{"custom_cn":barcode,"custom_auto_return":0,"is_return":0,"docstatus":1, "custom_location": location},["name","custom_cn","custom_consignee_name","custom_consignee_city","sales_partner"])
+	if not dn:
+		frappe.throw(f"The scanned CN# does not belong to the selected location. Please verify the parcel and try again.")
 	return dn
 
 

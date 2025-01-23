@@ -414,7 +414,16 @@ frappe.ui.form.on('Stock Entry', {
 		frm.remove_custom_button('Bill of Materials', "Get Items From");
 		frm.events.show_bom_custom_button(frm);
 		frm.trigger('add_to_transit');
+		frm.set_value('custom_main_location', null);
+		frm.fields_dict['items'].grid.grid_rows.forEach(function(row) {
+			var child_doc = row.doc;
+			["s_warehouse", "t_warehouse", "item_code", "item_name", "description", "item_group", "qty", "transfer_qty", "uom", "stock_uom", "expense_account", "cost_center", "actual_qty", "transferred_qty"].forEach((key) => {
+				frappe.model.set_value(child_doc.doctype, child_doc.name, key, null);
+			});
+		});
+		frm.refresh_field('items');
 		setup_warehouse(frm);
+		frm.get_field('items').grid.reset_grid();
 	},
 
 	purpose: function(frm) {
@@ -1267,7 +1276,7 @@ function setup_warehouse(frm){
 	if(frm.doc.stock_entry_type == 'Damage Return'){
 		frm.fields_dict['items'].grid.get_field("s_warehouse").get_query = function(doc, cdt, cdn) {
 			return {
-				filters: {'warehouse_type':'Rejection','is_group':0,'company':frm.doc.company,"parent_warehouse":['descendants of',doc.custom_main_location]}
+				filters: {'warehouse_type':'Rejection','custom_is_damaged_bin':1,'is_group':0,'company':frm.doc.company,"parent_warehouse":['descendants of',doc.custom_main_location]}
 			}
 		}
 		frm.fields_dict['items'].grid.get_field("t_warehouse").get_query = function(doc, cdt, cdn) {
@@ -1279,7 +1288,7 @@ function setup_warehouse(frm){
 	if(frm.doc.stock_entry_type == 'Stock Transfer'){
 		frm.fields_dict['items'].grid.get_field("s_warehouse").get_query = function(doc, cdt, cdn) {
 			return {
-				filters: {'is_group':0,'company':frm.doc.company,"parent_warehouse":['descendants of',doc.custom_main_location]}
+				filters: {'custom_is_pickable_bin': 1,'is_group':0,'company':frm.doc.company,"parent_warehouse":['descendants of',doc.custom_main_location]}
 			}
 		}
 		frm.fields_dict['items'].grid.get_field("t_warehouse").get_query = function(doc, cdt, cdn) {
@@ -1297,7 +1306,7 @@ function setup_warehouse(frm){
 		}
 		frm.fields_dict['items'].grid.get_field("t_warehouse").get_query = function(doc, cdt, cdn) {
 			return {
-				filters: {'warehouse_type':'Rejection','custom_is_pickable_bin':1,'company':frm.doc.company,"parent_warehouse":['descendants of',doc.custom_main_location]}
+				filters: {'warehouse_type':'Rejection','custom_is_damaged_bin':1,'company':frm.doc.company,"parent_warehouse":['descendants of',doc.custom_main_location]}
 			}
 		}
 	}
