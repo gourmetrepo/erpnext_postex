@@ -158,6 +158,7 @@
    "fieldtype": "Data",
    "in_global_search": 1,
    "label": "Item Name",
+   "length": 256,
    "oldfieldname": "item_name",
    "oldfieldtype": "Data",
    "search_index": 1
@@ -897,7 +898,7 @@
  "index_web_pages_for_search": 1,
  "links": [],
  "make_attachments_public": 1,
- "modified": "2023-09-11 13:46:32.688051",
+ "modified": "2025-01-14 21:17:46.196759",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Item",
