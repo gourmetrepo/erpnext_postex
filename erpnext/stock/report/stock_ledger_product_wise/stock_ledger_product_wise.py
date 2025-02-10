@@ -25,6 +25,24 @@ def execute(filters=None):
 				d['parent_warehouse'] = pwh.parent_warehouse
 			else:
 				main_location = 1
+
+	grouped_data = {}
+
+	for item in data:
+		key = (item['custom_sku'], item['warehouse'])
+		
+		if key in grouped_data:
+			grouped_data[key]['qty'] += item['qty']
+		else:
+			grouped_data[key] = {
+				'custom_sku': item['custom_sku'],
+				'item_name': item['item_name'],
+				'qty': item['qty'],
+				'warehouse': item['warehouse']
+			}
+
+	data = list(grouped_data.values())
+
 	return columns, data
 
 def get_columns(filters):
