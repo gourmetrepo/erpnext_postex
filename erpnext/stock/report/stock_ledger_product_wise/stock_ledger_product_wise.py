@@ -15,11 +15,22 @@ def execute(filters=None):
 					  JOIN `tabWarehouse` AS wh ON sle.warehouse = wh.name
 					  WHERE i.custom_merchant = '{merchant}' 
 					  GROUP BY i.item_code,sle.warehouse""",as_dict=True)
+	
+	# create warehouse_cache dict using only one get_all to fetch all warehouses 
+	# at once instead of multiple get_doc's
+	warehouse_cache = {}
+	warehouses = frappe.get_all(
+		"Warehouse", 
+		fields=["name", "custom_is_main_location", "warehouse_name", "parent_warehouse"]
+	)
+	for wh in warehouses:
+		warehouse_cache[wh["name"]] = wh
+	
 	for d in data:
 		main_location=0
 		while main_location == 0:
-			if frappe.db.exists("Warehouse", d['parent_warehouse']):
-				pwh = frappe.get_doc("Warehouse",d['parent_warehouse'])
+			if d["parent_warehouse"] in warehouse_cache:
+				pwh = warehouse_cache.get(d["parent_warehouse"])
 				main_location = pwh.custom_is_main_location
 				d['warehouse'] = pwh.warehouse_name
 				d['parent_warehouse'] = pwh.parent_warehouse
@@ -27,7 +38,6 @@ def execute(filters=None):
 				main_location = 1
 
 	grouped_data = {}
-
 	for item in data:
 		key = (item['custom_sku'], item['warehouse'])
 		
