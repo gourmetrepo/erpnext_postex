@@ -24,7 +24,8 @@ class DeliveryTrip(Document):
 			payload = json.dumps({
 				"cnNumber": dn.custom_cn,
 				"orderStatus": self.workflow_state,
-				"updatedDateTime": frappe.utils.nowdate()
+				"updatedDateTime": frappe.utils.nowdate(),
+				"merchant_ref": self.company
 			})
 			send_request(url,payload)
 

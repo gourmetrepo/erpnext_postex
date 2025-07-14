@@ -159,7 +159,8 @@ class StockLedgerEntry(Document):
 				payload = json.dumps({
 					"locationReference": custom_oms_location,
 					"productReference": self.item_code,
-					"quantity": qty
+					"quantity": qty,
+					"merchant_ref": self.company
 				})
 				send_request(url,payload)
 
