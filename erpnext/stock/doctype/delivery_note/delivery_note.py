@@ -38,7 +38,7 @@ class DeliveryNote(SellingController):
 			"cnNumber": self.custom_cn,
 			"orderStatus": self.workflow_state,
 			"updatedDateTime": frappe.utils.nowdate(),
-			"merchant_ref": self.company
+			"merchantReference": self.company
 		})
 		send_request(url,payload)
 
@@ -1158,7 +1158,7 @@ def make_return_stock_entries_bulk(dn):
 					"locationReference": dn.custom_location,
 					"productReference": i.sku,
 					"quantity": i.accepted_quantity,
-					"merchant_ref": dn.company
+					"merchantReference": dn.company
 				})
 				send_request(url,payload)
 
