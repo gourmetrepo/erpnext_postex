@@ -25,7 +25,7 @@ class DeliveryTrip(Document):
 				"cnNumber": dn.custom_cn,
 				"orderStatus": self.workflow_state,
 				"updatedDateTime": frappe.utils.nowdate(),
-				"merchant_ref": self.company
+				"merchantReference": self.company
 			})
 			send_request(url,payload)
 
