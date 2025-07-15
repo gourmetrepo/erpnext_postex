@@ -160,7 +160,7 @@ class StockLedgerEntry(Document):
 					"locationReference": custom_oms_location,
 					"productReference": self.item_code,
 					"quantity": qty,
-					"merchant_ref": self.company
+					"merchantReference": self.company
 				})
 				send_request(url,payload)
 
