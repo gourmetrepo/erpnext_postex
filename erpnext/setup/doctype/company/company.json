@@ -104,7 +104,8 @@
   "registration_details",
   "lft",
   "rgt",
-  "old_parent"
+  "old_parent",
+  "legacy"
  ],
  "fields": [
   {
@@ -742,6 +743,13 @@
    "fieldname": "is_enabled",
    "fieldtype": "Check",
    "label": "Is Enabled"
+  },
+  {
+   "default": "1",
+   "fieldname": "legacy",
+   "fieldtype": "Int",
+   "hidden": 1,
+   "label": "Legacy"
   }
  ],
  "icon": "fa fa-building",
@@ -749,7 +757,7 @@
  "image_field": "company_logo",
  "is_tree": 1,
  "links": [],
- "modified": "2023-11-22 13:00:55.435231",
+ "modified": "2025-07-16 16:15:50.082980",
  "modified_by": "Administrator",
  "module": "Setup",
  "name": "Company",
