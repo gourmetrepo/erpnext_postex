@@ -1232,21 +1232,21 @@ def generate_and_download_excel(filters):
 	os.remove(temp_file)
 
 
-def send_inventory_update_payload_legacy(dn, item):
+def send_inventory_update_payload_legacy(dn, i):
 	from postex.utils import send_request
 	import json
 	
 	url = "/services/oms/api/wms/product/quanity/update"
 	payload = json.dumps({
 		"locationReference": dn.custom_location,
-		"productReference": item.sku,
-		"quantity": item.accepted_quantity,
+		"productReference": i.sku,
+		"quantity": i.accepted_quantity,
 		"merchantReference": dn.company
 	})
 	send_request(url,payload)
 
 
-def send_inventory_update_payload(dn, item):
+def send_inventory_update_payload(dn, i):
 	from postex.utils import send_request
 	import json
 	
@@ -1256,26 +1256,27 @@ def send_inventory_update_payload(dn, item):
 			FROM
 				`tabStock Ledger Entry`
 			WHERE
-				item_code = '{dn.sku}'
+				item_code = '{i.sku}'
+				AND company = '{dn.company}'
 				AND warehouse in (
 					SELECT name 
 					FROM `tabWarehouse` 
 					WHERE 
 						company = '{dn.company}'
+						AND custom_oms_location = '{dn.custom_location}'
 						AND custom_is_pickable_bin = 1
 					);""",
 		as_dict=1
 	)
 	total_quantity = total_quantity[0].get('total_qty')
-	total_quantity = total_quantity + item.accepted_quantity	
 
 	from postex.utils import send_request
 	import json
 	url = "/services/oms/api/wms/product/quanity/update"
 	payload = json.dumps({
 		"locationReference": dn.custom_location,
-		"productReference": item.sku,
-		"quantity": item.accepted_quantity,
+		"productReference": i.sku,
+		"quantity": i.accepted_quantity,
 		"merchantReference": dn.company,
 		"totalQty": total_quantity
 	})
