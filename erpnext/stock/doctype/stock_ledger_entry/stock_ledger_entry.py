@@ -124,41 +124,13 @@ class StockLedgerEntry(Document):
 			process_serial_no(self)
 		#postex
 		print(self)
-		#postex api call
-		makerequest = False
-		warehouse = frappe.get_doc('Warehouse',self.warehouse)
-		if warehouse.get('custom_is_sync') == 1 and warehouse.get('custom_oms_location'):
-			makerequest = True
-			custom_oms_location = warehouse.get('custom_oms_location')
-
-		# if makerequest == False and self.voucher_type == 'Delivery Note':
-		# 	is_return = frappe.get_value('Delivery Note',self.voucher_no,'is_return')
-		# 	if is_return == 1:
-		# 		makerequest = True
-		# 		custom_oms_location = frappe.get_value('Delivery Note',self.voucher_no,'custom_location')
 		
-		if makerequest == True:
-			_mr = True
-			# Stock Entry Type
-			stock_entry_type = ''
-			if self.voucher_type == 'Stock Entry':
-				stock_entry_type = frappe.db.get_value('Stock Entry',self.voucher_no,'stock_entry_type')
-				if stock_entry_type == 'Put Away GRN' or stock_entry_type == 'Put Away Return' or stock_entry_type == 'Put Away Damage' or stock_entry_type == 'Opening Stock' or stock_entry_type == 'Stock Discard':
-					_mr = False
-		
-			if self.voucher_type == 'Purchase Receipt' and warehouse.warehouse_type == 'Rejection':
-				_mr = False
-				
-			if _mr == True:
-				qty = self.actual_qty
-				if stock_entry_type == 'Damage':
-					qty = -1 * qty
-				
-				legacy = frappe.db.get_value('Company', self.company, 'legacy')
-				if legacy:
-					send_inventory_update_payload_legacy(custom_oms_location, self.item_code, qty, self.company)
-				else:
-					send_inventory_update_payload(custom_oms_location, self.item_code, qty, self.company)
+		#postex api call				
+		legacy = frappe.db.get_value('Company', self.company, 'legacy')
+		if legacy:
+			send_inventory_update_payload_legacy(self)
+		else:
+			send_inventory_update_payload(self)
 
 	def calculate_batch_qty(self):
 		if self.batch_no:
@@ -331,50 +303,89 @@ def on_doctype_update():
 	frappe.db.add_index("Stock Ledger Entry", ["warehouse", "item_code"], "item_warehouse")
 
 
-def send_inventory_update_payload_legacy(custom_oms_location, item_code, qty, company):
-	from postex.utils import send_request
-	import json
-	url = "/services/oms/api/wms/product/quanity/update"
-	payload = json.dumps({
-		"locationReference": custom_oms_location,
-		"productReference": item_code,
-		"quantity": qty,
-		"merchantReference": company
-	})
-	send_request(url,payload)
+def send_inventory_update_payload_legacy(self):
+	makerequest = False
+	warehouse = frappe.get_doc('Warehouse',self.warehouse)
+	if warehouse.get('custom_is_sync') == 1 and warehouse.get('custom_oms_location'):
+		makerequest = True
+		custom_oms_location = warehouse.get('custom_oms_location')
 
-
-def send_inventory_update_payload(custom_oms_location, item_code, qty, company):
-	from postex.utils import send_request
-	import json
+	# if makerequest == False and self.voucher_type == 'Delivery Note':
+	# 	is_return = frappe.get_value('Delivery Note',self.voucher_no,'is_return')
+	# 	if is_return == 1:
+	# 		makerequest = True
+	# 		custom_oms_location = frappe.get_value('Delivery Note',self.voucher_no,'custom_location')
 	
-	total_quantity = frappe.db.sql(
-		f"""SELECT
-				IFNULL(SUM(actual_qty), 0) AS total_qty
-			FROM
-				`tabStock Ledger Entry`
-			WHERE
-				item_code = '{item_code}'
-				AND warehouse in (
-					SELECT name 
-					FROM `tabWarehouse` 
-					WHERE 
-						company = '{company}'
-						AND custom_is_pickable_bin = 1
-					);""",
-		as_dict=1
-	)
-	total_quantity = total_quantity[0].get('total_qty')
-	total_quantity = total_quantity + qty
+	if makerequest == True:
+		_mr = True
+		# Stock Entry Type
+		stock_entry_type = ''
+		if self.voucher_type == 'Stock Entry':
+			stock_entry_type = frappe.db.get_value('Stock Entry',self.voucher_no,'stock_entry_type')
+			if stock_entry_type == 'Put Away GRN' or stock_entry_type == 'Put Away Return' or stock_entry_type == 'Put Away Damage' or stock_entry_type == 'Opening Stock' or stock_entry_type == 'Stock Discard':
+				_mr = False
+	
+		if self.voucher_type == 'Purchase Receipt' and warehouse.warehouse_type == 'Rejection':
+			_mr = False
+			
+		if _mr == True:
+			qty = self.actual_qty
+			if stock_entry_type == 'Damage':
+				qty = -1 * qty
+			from postex.utils import send_request
+			import json
+			url = "/services/oms/api/wms/product/quanity/update"
+			payload = json.dumps({
+				"locationReference": custom_oms_location,
+				"productReference": self.item_code,
+				"quantity": qty,
+				"merchantReference": self.company
+			})
+			send_request(url,payload)
 
-	from postex.utils import send_request
-	import json
-	url = "/services/oms/api/wms/product/quanity/update"
-	payload = json.dumps({
-		"locationReference": custom_oms_location,
-		"productReference": item_code,
-		"quantity": qty,
-		"merchantReference": company,
-		"totalQty": total_quantity
-	})
-	send_request(url,payload)
+
+def send_inventory_update_payload(self):
+	warehouse = frappe.get_doc('Warehouse',self.warehouse)
+	if warehouse.get('custom_is_sync') == 1 and warehouse.get('custom_oms_location') and warehouse.get('custom_is_pickable_bin') == 1:
+		custom_oms_location = warehouse.get('custom_oms_location')
+		qty = self.actual_qty
+		
+		stock_entry_type = ''
+		if self.voucher_type == 'Stock Entry':
+			stock_entry_type = frappe.db.get_value('Stock Entry',self.voucher_no,'stock_entry_type')
+			if stock_entry_type == 'Damage':
+				qty = -1 * qty
+			
+		from postex.utils import send_request
+		import json
+		total_quantity = frappe.db.sql(
+			f"""SELECT
+					IFNULL(SUM(actual_qty), 0) AS total_qty
+				FROM
+					`tabStock Ledger Entry`
+				WHERE
+					item_code = '{self.item_code}'
+					AND company = '{self.company}'
+					AND warehouse in (
+						SELECT name 
+						FROM `tabWarehouse` 
+						WHERE 
+							company = '{self.company}'
+							AND custom_oms_location = '{custom_oms_location}'
+							AND custom_is_pickable_bin = 1
+						);""",
+			as_dict=1
+		)
+		total_quantity = total_quantity[0].get('total_qty')
+
+		from postex.utils import send_request
+		import json
+		url = "/services/oms/api/wms/product/quanity/update"
+		payload = json.dumps({
+			"locationReference": custom_oms_location,
+			"productReference": self.item_code,
+			"quantity": qty,
+			"merchantReference": self.company,
+			"totalQty": total_quantity
+		})
+		send_request(url,payload)
