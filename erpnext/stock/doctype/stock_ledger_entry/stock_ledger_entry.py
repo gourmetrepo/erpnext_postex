@@ -153,16 +153,12 @@ class StockLedgerEntry(Document):
 				qty = self.actual_qty
 				if stock_entry_type == 'Damage':
 					qty = -1 * qty
-				from postex.utils import send_request
-				import json
-				url = "/services/oms/api/wms/product/quanity/update"
-				payload = json.dumps({
-					"locationReference": custom_oms_location,
-					"productReference": self.item_code,
-					"quantity": qty,
-					"merchantReference": self.company
-				})
-				send_request(url,payload)
+				
+				legacy = frappe.db.get_value('Company', self.company, 'legacy')
+				if legacy:
+					send_inventory_update_payload_legacy(custom_oms_location, self.item_code, qty, self.company)
+				else:
+					send_inventory_update_payload(custom_oms_location, self.item_code, qty, self.company)
 
 	def calculate_batch_qty(self):
 		if self.batch_no:
@@ -333,3 +329,52 @@ def on_doctype_update():
 	frappe.db.add_index("Stock Ledger Entry", ["voucher_no", "voucher_type"])
 	frappe.db.add_index("Stock Ledger Entry", ["batch_no", "item_code", "warehouse"])
 	frappe.db.add_index("Stock Ledger Entry", ["warehouse", "item_code"], "item_warehouse")
+
+
+def send_inventory_update_payload_legacy(custom_oms_location, item_code, qty, company):
+	from postex.utils import send_request
+	import json
+	url = "/services/oms/api/wms/product/quanity/update"
+	payload = json.dumps({
+		"locationReference": custom_oms_location,
+		"productReference": item_code,
+		"quantity": qty,
+		"merchantReference": company
+	})
+	send_request(url,payload)
+
+
+def send_inventory_update_payload(custom_oms_location, item_code, qty, company):
+	from postex.utils import send_request
+	import json
+	
+	total_quantity = frappe.db.sql(
+		f"""SELECT
+				IFNULL(SUM(actual_qty), 0) AS total_qty
+			FROM
+				`tabStock Ledger Entry`
+			WHERE
+				item_code = '{item_code}'
+				AND warehouse in (
+					SELECT name 
+					FROM `tabWarehouse` 
+					WHERE 
+						company = '{company}'
+						AND custom_is_pickable_bin = 1
+					);""",
+		as_dict=1
+	)
+	total_quantity = total_quantity[0].get('total_qty')
+	total_quantity = total_quantity + qty
+
+	from postex.utils import send_request
+	import json
+	url = "/services/oms/api/wms/product/quanity/update"
+	payload = json.dumps({
+		"locationReference": custom_oms_location,
+		"productReference": item_code,
+		"quantity": qty,
+		"merchantReference": company,
+		"totalQty": total_quantity
+	})
+	send_request(url,payload)
