@@ -1151,16 +1151,11 @@ def make_return_stock_entries_bulk(dn):
 		doclist.submit()
 		for i in dn.delivery_note_item:
 			if i.accepted_quantity > 0:
-				from postex.utils import send_request
-				import json
-				url = "/services/oms/api/wms/product/quanity/update"
-				payload = json.dumps({
-					"locationReference": dn.custom_location,
-					"productReference": i.sku,
-					"quantity": i.accepted_quantity,
-					"merchantReference": dn.company
-				})
-				send_request(url,payload)
+				legacy = frappe.db.get_value('Company', dn.company, 'legacy')
+				if legacy:
+					send_inventory_update_payload_legacy(dn, i)
+				else:
+					send_inventory_update_payload(dn, i)
 
 		# rse = frappe.new_doc('Stock Entry')
 		# rse.stock_entry_type = 'Put Away Return'
@@ -1235,3 +1230,53 @@ def generate_and_download_excel(filters):
 	frappe.local.response.filecontent = filedata
 	frappe.local.response.type = "download"
 	os.remove(temp_file)
+
+
+def send_inventory_update_payload_legacy(dn, item):
+	from postex.utils import send_request
+	import json
+	
+	url = "/services/oms/api/wms/product/quanity/update"
+	payload = json.dumps({
+		"locationReference": dn.custom_location,
+		"productReference": item.sku,
+		"quantity": item.accepted_quantity,
+		"merchantReference": dn.company
+	})
+	send_request(url,payload)
+
+
+def send_inventory_update_payload(dn, item):
+	from postex.utils import send_request
+	import json
+	
+	total_quantity = frappe.db.sql(
+		f"""SELECT
+				IFNULL(SUM(actual_qty), 0) AS total_qty
+			FROM
+				`tabStock Ledger Entry`
+			WHERE
+				item_code = '{dn.sku}'
+				AND warehouse in (
+					SELECT name 
+					FROM `tabWarehouse` 
+					WHERE 
+						company = '{dn.company}'
+						AND custom_is_pickable_bin = 1
+					);""",
+		as_dict=1
+	)
+	total_quantity = total_quantity[0].get('total_qty')
+	total_quantity = total_quantity + item.accepted_quantity	
+
+	from postex.utils import send_request
+	import json
+	url = "/services/oms/api/wms/product/quanity/update"
+	payload = json.dumps({
+		"locationReference": dn.custom_location,
+		"productReference": item.sku,
+		"quantity": item.accepted_quantity,
+		"merchantReference": dn.company,
+		"totalQty": total_quantity
+	})
+	send_request(url,payload)
