@@ -350,12 +350,6 @@ def send_inventory_update_payload(self):
 		custom_oms_location = warehouse.get('custom_oms_location')
 		qty = self.actual_qty
 		
-		stock_entry_type = ''
-		if self.voucher_type == 'Stock Entry':
-			stock_entry_type = frappe.db.get_value('Stock Entry',self.voucher_no,'stock_entry_type')
-			if stock_entry_type == 'Damage':
-				qty = -1 * qty
-			
 		from postex.utils import send_request
 		import json
 		total_quantity = frappe.db.sql(
