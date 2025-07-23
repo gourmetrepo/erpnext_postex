@@ -13,7 +13,7 @@ def execute(filters=None):
 					  FROM `tabStock Ledger Entry` AS sle
 					  JOIN `tabItem` AS i on i.item_code = sle.item_code
 					  JOIN `tabWarehouse` AS wh ON sle.warehouse = wh.name
-					  WHERE i.custom_merchant = '{merchant}' 
+					  WHERE i.custom_merchant = '{merchant}' AND wh.custom_is_pickable_bin = 1
 					  GROUP BY i.item_code,sle.warehouse""",as_dict=True)
 	
 	# create warehouse_cache dict using only one get_all to fetch all warehouses 
