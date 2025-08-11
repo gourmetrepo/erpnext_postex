@@ -35,10 +35,21 @@ frappe.ui.form.on('Material Request', {
 	custom_scan_barcode:function(frm){
 		if (frm.doc.custom_barcode != ''){
 			const merchant_id = frm.doc.company;
-			const sku = frm.doc.custom_scan_barcode
-			const merchant_wise_barcode = `${merchant_id}___${sku}`;
+			const location = frm.doc.custom_location;
+			const sku = frm.ds
+			const merchant_wise_barcode = `${merchant_id}___${location}___${sku}`;
 
 			if (sku) {
+				if (!location) {
+					frappe.msgprint({
+						title: __("Notification"),
+						indicator: "red",
+						message: __("Location is required before scanning barcode")
+					});
+					frm.set_value("scan_barcode", "");
+					return;
+				}
+
 				frappe.call({
 					method: "postex.api.dn.get_item_by_barcode",
 					type: "GET",
