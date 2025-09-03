@@ -371,13 +371,15 @@ def send_inventory_update_payload(self):
 			as_dict=1
 		)
 		total_quantity = total_quantity[0].get('total_qty')
+		
+		sku = frappe.get_cached_value("Item", {"item_code": self.item_code}, "custom_sku")
 
 		from postex.utils import send_request
 		import json
 		url = "/services/oms/api/wms/product/quanity/update"
 		payload = json.dumps({
 			"locationReference": custom_oms_location,
-			"productReference": self.item_code,
+			"productReference": sku,
 			"quantity": qty,
 			"merchantReference": self.company,
 			"totalQty": total_quantity
