@@ -903,7 +903,11 @@ erpnext.stock.StockEntry = class StockEntry extends erpnext.stock.StockControlle
 		};
 
 		this.frm.fields_dict.items.grid.get_field('item_code').get_query = function() {
-			return erpnext.queries.item({is_stock_item: 1});
+			let filters = {is_stock_item: 1}
+			if (me.frm.doc.custom_main_location) {
+				filters['custom_location'] = me.frm.doc.custom_main_location
+			}
+			return erpnext.queries.item(filters);
 		};
 
 		this.frm.set_query("purchase_order", function() {
