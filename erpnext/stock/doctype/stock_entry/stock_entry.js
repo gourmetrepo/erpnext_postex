@@ -956,6 +956,14 @@ erpnext.stock.StockEntry = class StockEntry extends erpnext.stock.StockControlle
 		this.frm.set_query("supplier_address", erpnext.queries.address_query)
 	}
 
+	onload() {
+		if (!(this.frm.is_new())) {
+			if (this.frm.doc.stock_entry_type == "Put Away GRN") {
+				this.frm.set_df_property('custom_main_location', 'read_only', 1);
+			}
+		}
+	}
+
 	onload_post_render() {
 		var me = this;
 		this.set_default_account(function() {
