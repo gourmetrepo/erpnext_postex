@@ -903,7 +903,11 @@ erpnext.stock.StockEntry = class StockEntry extends erpnext.stock.StockControlle
 		};
 
 		this.frm.fields_dict.items.grid.get_field('item_code').get_query = function() {
-			return erpnext.queries.item({is_stock_item: 1});
+			let filters = {is_stock_item: 1}
+			if (me.frm.doc.custom_main_location) {
+				filters['custom_location'] = me.frm.doc.custom_main_location
+			}
+			return erpnext.queries.item(filters);
 		};
 
 		this.frm.set_query("purchase_order", function() {
@@ -952,6 +956,14 @@ erpnext.stock.StockEntry = class StockEntry extends erpnext.stock.StockControlle
 		this.frm.set_query("supplier_address", erpnext.queries.address_query)
 	}
 
+	onload() {
+		if (!(this.frm.is_new())) {
+			if (this.frm.doc.stock_entry_type == "Put Away GRN") {
+				this.frm.set_df_property('custom_main_location', 'read_only', 1);
+			}
+		}
+	}
+
 	onload_post_render() {
 		var me = this;
 		this.set_default_account(function() {
@@ -977,8 +989,28 @@ erpnext.stock.StockEntry = class StockEntry extends erpnext.stock.StockControlle
 	}
 
 	scan_barcode() {
-		const barcode_scanner = new erpnext.utils.BarcodeScanner({frm:this.frm});
-		barcode_scanner.process_scan();
+		const merchant_id = this.frm.doc.company;
+		const location = this.frm.doc.custom_main_location;
+		const sku = this.frm.doc.scan_barcode
+		const merchant_wise_barcode = `${merchant_id}___${location}___${sku}`;
+
+		if (sku) {
+			if (!location) {
+				frappe.msgprint({
+					title: __("Notification"),
+					indicator: "red",
+					message: __("Main Location is required before scanning barcode")
+				});
+				this.frm.set_value("scan_barcode", "");
+				return;
+			}
+
+			this.frm.fields_dict.scan_barcode.value = merchant_wise_barcode
+			this.frm.fields_dict.scan_barcode.last_value = merchant_wise_barcode
+
+			const barcode_scanner = new erpnext.utils.BarcodeScanner({frm:this.frm});
+			barcode_scanner.process_scan();
+		}
 	}
 
 	on_submit() {
