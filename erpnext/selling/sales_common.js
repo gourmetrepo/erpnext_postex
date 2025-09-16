@@ -62,13 +62,51 @@ erpnext.selling.SellingController = class SellingController extends erpnext.Tran
 		if(this.frm.fields_dict["items"].grid.get_field('item_code')) {
 			this.frm.set_query("item_code", "items", function() {
 				let filter_dict = {'is_sales_item': 1, 'customer': cur_frm.doc.customer, 'has_variants': 0,"custom_merchant":cur_frm.doc.company}
+
 				if (cur_frm.doc.custom_location) {
-					filter_dict['custom_location'] = cur_frm.doc.custom_location
+					let company = null;
+					frappe.call({
+						method: "frappe.client.get_value",
+						args: {
+							doctype: "Warehouse",
+							filters: { name: cur_frm.doc.custom_location },
+							fieldname: "company"
+						},
+						async: false,
+						callback: function(r) {
+							if (r.message) {
+								company = r.message.company;
+							}
+						}
+					});
+
+					if (company) {
+						let legacy = 0;
+						frappe.call({
+							method: "frappe.client.get_value",
+							args: {
+								doctype: "Company",
+								filters: { name: company },
+								fieldname: "legacy"
+							},
+							async: false,
+							callback: function(r2) {
+								if (r2.message && r2.message.legacy) {
+									legacy = r2.message.legacy;
+								}
+							}
+						});
+
+						if (!legacy) {
+							filter_dict["custom_location"] = cur_frm.doc.custom_location;
+						}
+					}
 				}
+
 				return {
 					query: "erpnext.controllers.queries.item_query",
 					filters: filter_dict
-				}
+				};
 			});
 		}
 

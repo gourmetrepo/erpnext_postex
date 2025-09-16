@@ -98,12 +98,50 @@ erpnext.buying.BuyingController = class BuyingController extends erpnext.Transac
 			}
 			else {
 				if (me.frm.doc.set_warehouse) {
-					return {
-						query: "erpnext.controllers.queries.item_query",
-						filters: { 'supplier': me.frm.doc.supplier, 'is_purchase_item': 1, 'has_variants': 0,"custom_merchant":me.frm.doc.company, 'custom_location': me.frm.doc.set_warehouse}
+					let company = null;
+					frappe.call({
+						method: "frappe.client.get_value",
+						args: {
+							doctype: "Warehouse",
+							filters: { name: me.frm.doc.set_warehouse },
+							fieldname: "company"
+						},
+						async: false,
+						callback: function(r) {
+							if (r.message) {
+								company = r.message.company;
+							}
+						}
+					});
+
+					// Step 2: Get legacy flag from Company
+					let legacy = 0;
+					if (company) {
+						frappe.call({
+							method: "frappe.client.get_value",
+							args: {
+								doctype: "Company",
+								filters: { name: company },
+								fieldname: "legacy"
+							},
+							async: false,
+							callback: function(r2) {
+								if (r2.message && r2.message.legacy) {
+									legacy = r2.message.legacy;
+								}
+							}
+						});
+					}
+
+					if (!legacy) {
+						return {
+							query: "erpnext.controllers.queries.item_query",
+							filters: { 'supplier': me.frm.doc.supplier, 'is_purchase_item': 1, 'has_variants': 0,"custom_merchant":me.frm.doc.company, 'custom_location': me.frm.doc.set_warehouse}
+						}
 					}
 				}
-				return{
+
+				return {
 					query: "erpnext.controllers.queries.item_query",
 					filters: { 'supplier': me.frm.doc.supplier, 'is_purchase_item': 1, 'has_variants': 0,"custom_merchant":me.frm.doc.company}
 				}
