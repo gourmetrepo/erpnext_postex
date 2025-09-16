@@ -904,9 +904,45 @@ erpnext.stock.StockEntry = class StockEntry extends erpnext.stock.StockControlle
 
 		this.frm.fields_dict.items.grid.get_field('item_code').get_query = function() {
 			let filters = {is_stock_item: 1}
+
 			if (me.frm.doc.custom_main_location) {
-				filters['custom_location'] = me.frm.doc.custom_main_location
+				let company = null;
+				frappe.call({
+					method: "frappe.client.get_value",
+					args: {
+						doctype: "Warehouse",
+						filters: { name: me.frm.doc.custom_main_location },
+						fieldname: "company"
+					},
+					async: false,
+					callback: function(r) {
+						if (r.message) company = r.message.company;
+					}
+				});
+
+				if (company) {
+					let legacy = 0;
+					frappe.call({
+						method: "frappe.client.get_value",
+						args: {
+							doctype: "Company",
+							filters: { name: company },
+							fieldname: "legacy"
+						},
+						async: false,
+						callback: function(r2) {
+							if (r2.message && r2.message.legacy) {
+								legacy = r2.message.legacy;
+							}
+						}
+					});
+
+					if (!legacy) {
+						filters["custom_location"] = me.frm.doc.custom_main_location;
+					}
+				}
 			}
+
 			return erpnext.queries.item(filters);
 		};
 
